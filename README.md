@@ -41,17 +41,17 @@ cd /nfs/dust/cms/user/<username>/
 # get the anaconda installer
 # Note: To have the latest version, you can look up the list at
 # https://repo.continuum.io/archive/
-wget https://repo.continuum.io/archive/Anaconda2-2019.10-Linux-x86_64.sh
+wget https://repo.continuum.io/archive/Anaconda3-2023.09-0-Linux-x86_64.sh
 
 # install anaconda
-bash Anaconda2-2019.10-Linux-x86_64.sh
+bash Anaconda3-2023.09-0-Linux-x86_64.sh
 
 # press ENTER to review the license agreement and type "yes" to accept
 
 # ATTENTION! When asked where to install anaconda,
 # do NOT press enter to confirm the default location,
 # but provide your dust home directory instead
-# (type: /nfs/dust/cms/user/<username>/anaconda2).
+# (type: /nfs/dust/cms/user/<username>/anaconda3).
 
 # Answer all other prompts with the recommended option (in brackets).
 # Optional: To have an easier way to activate your conda environment,
@@ -59,7 +59,7 @@ bash Anaconda2-2019.10-Linux-x86_64.sh
 
 # load anaconda
 # IMPORTANT: You have to run this command every time you log in to NAF!
-export PATH=/nfs/dust/cms/user/<username>/anaconda2/bin:$PATH
+export PATH=/nfs/dust/cms/user/<username>/anaconda3/bin:$PATH
 
 ```
 
@@ -69,12 +69,12 @@ export PATH=/nfs/dust/cms/user/<username>/anaconda2/bin:$PATH
 We will be working inside a conda environment. To create and activate the environment, follow the instructions below:
 
 ```bash
-# create a conda environment called "particlenet"
-conda create -n particlenet python=3.7
+# create a conda environment called "mds_regression"
+conda create -n mds_regression python=3.8
 
 # activate the environment
 # IMPORTANT: You also need to run this command every time you log in to NAF!
-source activate /nfs/dust/cms/user/<username>/anaconda2/envs/particlenet
+source activate /nfs/dust/cms/user/<username>/anaconda3/envs/mds_regression
 ```
 
 ### Installing required packages
@@ -85,7 +85,7 @@ source activate /nfs/dust/cms/user/<username>/anaconda2/envs/particlenet
 # cd to your environment directory
 # Note: This is important! If you try to install packages when not in
 # your environment directory, you might get file I/O errors!
-cd /nfs/dust/cms/user/<username>/anaconda2/envs/particlenet/
+cd /nfs/dust/cms/user/<username>/anaconda3/envs/mds_regression/
 
 # install keras
 conda install -c anaconda keras-gpu
@@ -118,10 +118,10 @@ conda install -c conda-forge awkward
 conda install -c conda-forge uproot-methods
 
 # install jupyterhub kernel
-cd /nfs/dust/cms/user/<username>/anaconda2/envs/particlenet #you should be here already, better to be sure
+cd /nfs/dust/cms/user/<username>/anaconda3/envs/mds_regression #you should be here already, better to be sure
 conda activate particlenet
 pip install ipykernel --user
-python -m ipykernel install --user --name="particlenet"
+python -m ipykernel install --user --name="mds_regression"
 ```
 
 ### Cloning this repository
