@@ -119,7 +119,7 @@ conda install -c conda-forge uproot-methods
 
 # install jupyterhub kernel
 cd /nfs/dust/cms/user/<username>/anaconda3/envs/mds_regression #you should be here already, better to be sure
-conda activate particlenet
+conda activate mds_regression
 pip install ipykernel --user
 python -m ipykernel install --user --name="mds_regression"
 ```
