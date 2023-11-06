@@ -70,7 +70,7 @@ We will be working inside a conda environment. To create and activate the enviro
 
 ```bash
 # create a conda environment called "mds_regression"
-conda create -n mds_regression python=3.8
+conda create -n mds_regression python=3.10
 
 # activate the environment
 # IMPORTANT: You also need to run this command every time you log in to NAF!
