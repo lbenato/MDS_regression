@@ -117,6 +117,9 @@ conda install -c conda-forge awkward
 # install uproot_methods
 conda install -c conda-forge uproot-methods
 
+# install uproot
+conda install -c conda-forge uproot
+
 # install jupyterhub kernel
 cd /nfs/dust/cms/user/<username>/anaconda3/envs/mds_regression #you should be here already, better to be sure
 conda activate mds_regression
