@@ -70,7 +70,7 @@ We will be working inside a conda environment. To create and activate the enviro
 
 ```bash
 # create a conda environment called "mds_regression"
-conda create -n mds_regression python=3.10
+conda create -n mds_regression python=3.7
 
 # activate the environment
 # IMPORTANT: You also need to run this command every time you log in to NAF!
@@ -87,38 +87,43 @@ source activate /nfs/dust/cms/user/<username>/anaconda3/envs/mds_regression
 # your environment directory, you might get file I/O errors!
 cd /nfs/dust/cms/user/<username>/anaconda3/envs/mds_regression/
 
-# install keras
-conda install -c anaconda keras-gpu
-
-# install tensorflow
-conda install tensorflow
-
-#install pandas (for data manipulation and analysis)
-conda install pandas
-
-# install matplotlib
-conda install matplotlib
+#change solver and install root
+conda config --set solver libmamba
 
 # install pytables
 conda install pytables
 
-# install scikit-learn
-conda install scikit-learn
-
 # install ROOT
 conda install -c conda-forge root
 
-# install root_numpy
-conda install -c conda-forge root_numpy
+## install root_numpy
+#conda install -c conda-forge root_numpy
 
-# install awkward
-conda install -c conda-forge awkward
+#create requirements.txt
+awkward <= 2.0    # apparently in 2.X there is no conversion to ak0 anymore
+awkward0
+#coffea
+#hist
+#hls4ml
+keras
+keras-gpu
+matplotlib
+#mplhep
+numpy
+#qkeras
+#pytables
+pandas
+#root
+#root_numpy
+scikit-learn 
+scipy
+#seaborn
+#shap
+uproot
+#vector
+tensorflow
 
-## install uproot_methods
-##conda install -c conda-forge uproot-methods
-
-# install uproot
-conda install -c conda-forge uproot
+pip install -r path/to/requirements.txt
 
 # install jupyterhub kernel
 cd /nfs/dust/cms/user/<username>/anaconda3/envs/mds_regression #you should be here already, better to be sure
