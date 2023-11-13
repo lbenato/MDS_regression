@@ -120,7 +120,7 @@ scipy
 #seaborn
 #shap
 uproot
-#vector
+vector
 tensorflow
 
 pip install -r path/to/requirements.txt
