@@ -126,6 +126,7 @@ tensorflow
 pip install -r path/to/requirements.txt
 
 pip install root-numpy
+python -m pip install --user --force-reinstall --ignore-installed --no-binary :all: numpy root_numpy
 
 # install jupyterhub kernel
 cd /nfs/dust/cms/user/<username>/anaconda3/envs/mds_regression #you should be here already, better to be sure
