@@ -97,7 +97,7 @@ conda install pytables
 conda install -c conda-forge root
 
 ## install root_numpy
-#conda install -c conda-forge root_numpy
+conda install -c conda-forge root_numpy
 
 #create requirements.txt
 awkward <= 2.0    # apparently in 2.X there is no conversion to ak0 anymore
@@ -124,9 +124,6 @@ vector
 tensorflow
 
 pip install -r path/to/requirements.txt
-
-pip install root-numpy
-python -m pip install --user --force-reinstall --ignore-installed --no-binary :all: numpy root_numpy
 
 # install jupyterhub kernel
 cd /nfs/dust/cms/user/<username>/anaconda3/envs/mds_regression #you should be here already, better to be sure
