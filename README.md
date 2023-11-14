@@ -106,7 +106,7 @@ awkward0
 #hist
 #hls4ml
 keras
-keras-gpu
+#keras-gpu
 matplotlib
 #mplhep
 numpy
@@ -114,7 +114,7 @@ numpy
 #pytables
 pandas
 #root
-#root_numpy
+root-numpy
 scikit-learn 
 scipy
 #seaborn
@@ -124,6 +124,8 @@ vector
 tensorflow
 
 pip install -r path/to/requirements.txt
+
+pip install root-numpy
 
 # install jupyterhub kernel
 cd /nfs/dust/cms/user/<username>/anaconda3/envs/mds_regression #you should be here already, better to be sure
