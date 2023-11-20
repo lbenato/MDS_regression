@@ -99,7 +99,7 @@ conda install -c conda-forge root
 ## install root_numpy
 conda install -c conda-forge root_numpy
 
-#create requirements.txt
+#create a requirements.txt file including the following lines:
 awkward <= 2.0    # apparently in 2.X there is no conversion to ak0 anymore
 awkward0
 #coffea
