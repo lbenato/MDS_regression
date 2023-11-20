@@ -143,24 +143,9 @@ cd ML_LLP
 git clone https://github.com/lbenato/MDS_regression.git
 ```
 
-### Download the top-tagging datasets to /nfs/dust/
+### Location of samples...
 
-The full top tagging dataset can be found here:\
-[https://zenodo.org/record/2603256](https://zenodo.org/record/2603256).
-
-A smaller size version for training and validation is available here:\
-[https://desycloud.desy.de/index.php/s/rKrtHqbQwb5TAfg](https://desycloud.desy.de/index.php/s/rKrtHqbQwb5TAfg).
-
-To download the samples to your dust area on NAF, just do the following:
-
-```bash
-cd /nfs/dust/cms/user/<username>/ML_LLP
-mkdir TopTaggingDataset #prepare a directory to store data
-cd TopTaggingDataset
-wget -O test.h5 'https://zenodo.org/record/2603256/files/test.h5'
-wget -O train.h5 'https://desycloud.desy.de/index.php/s/rKrtHqbQwb5TAfg/download?path=%2Ftop-tagging&files=train.h5'
-wget -O val.h5 'https://desycloud.desy.de/index.php/s/rKrtHqbQwb5TAfg/download?path=%2Ftop-tagging&files=val.h5'
-```
+Work in progress
 
 ### Loading a conda environment to jupyter notebooks
 
@@ -170,20 +155,18 @@ Check `Select GPU node` and click on `Start`
 
 On the browser, click on the directories to go to:
 
-`nfs_dust/ML_LLP/MDS_regression/tf-keras`
+`nfs_dust/ML_LLP/MDS_regression/`
 
 Here, you can find two jupyter notebooks:
+- work in progress....
 - [convert_dataset.ipynb](tf-keras/convert_dataset.ipynb)
 - [keras_train.ipynb](tf-keras/keras_train.ipynb)
 
 **Note**: Every time you open a notebook, make sure to load your conda environment!\
-You just need to click on `Kernel`, `Change kernel`, and `particlenet`.
+You just need to click on `Kernel`, `Change kernel`, and `mds_regression`.
 
 ### Run Keras/Tensorflow scripts
-
-Convert the top tagging dataset with: [tf-keras/convert_dataset.ipynb](tf-keras/convert_dataset.ipynb)
-
-Train the model with: [tf-keras/keras_train.ipynb](tf-keras/keras_train.ipynb)
+...
 
 **Note:** Don't forget to change the `username` when needed!
 
