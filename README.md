@@ -106,7 +106,6 @@ awkward0
 #hist
 #hls4ml
 keras
-#keras-gpu
 matplotlib
 #mplhep
 numpy
@@ -117,7 +116,7 @@ pandas
 root-numpy
 scikit-learn 
 scipy
-#seaborn
+seaborn
 #shap
 uproot
 vector
