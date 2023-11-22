@@ -34,14 +34,15 @@ class Dataset:
         self.np_array_unstructured = None
 
         
-    def create_ak_array_from_tree(self, wildcard, branchnames=[], verbosity=0):
+    def create_ak_array_from_tree(self, wildcard, tree_name, branchnames=[], verbosity=0):
         # read in the the trees with uproot and create awkward arrays
         # then store the arrays 
         self.branchnames=branchnames
         self.wildcard=wildcard
         self.list_of_root_files = glob.glob(self.wildcard)
         
-        file_and_tree_expressions = [ rootfile+":tree" for rootfile in self.list_of_root_files]
+       
+        file_and_tree_expressions = [ rootfile+":"+tree_name for rootfile in self.list_of_root_files]
         if verbosity:
             print("converting the following root files and trees")
             for f in file_and_tree_expressions:
@@ -95,6 +96,39 @@ class Dataset:
 
         return full_array
     
+    def unroll_raw_array_cluster(self, ak_array, max_events=-1, verbosity=0):
+        # function that creates a new awkward array with one entry per cluster
+        # then stores the array in a class variable self.ak_array_unrolled
+        print("Turning event array into cluster array")
+        list_of_columns = [c for c in ak_array[0].fields]
+        list_of_entry_dicts = []
+        total_cl = 0
+        n_events_seen=0
+        for event in ak_array:
+            n_cl = len(event["cscRechitCluster_match_gLLP"])
+            total_cl += n_cl
+            for icl in range(n_cl):
+            # create temporary dictionary to hold cluster data
+                data_dict = {col: event[col] if not col.startswith("cscRechitCluster") else event[col][icl]
+                         for col in list_of_columns}
+                if verbosity>1:
+                    print(data_dict)
+                list_of_entry_dicts.append(data_dict)
+            n_events_seen+=1
+            if(n_events_seen%1000==0):
+                print("Processing event n. ", n_events_seen)
+            if max_events>0 and n_events_seen>=max_events:
+                break
+                
+        full_array = ak.Array(list_of_entry_dicts)
+        self.ak_array_unrolled = full_array
+        
+        print("Processes a total of", total_cl, "clusters")
+        print("Final array contains", len(full_array), "entries")
+        print("stored the final array also as class variable ak_array_unrolled")
+
+        return full_array
+    
     def vectorize_and_pad_raw_array_jets(self, ak_array, max_jets=10,  verbosity=0):
         # function that creates a new awkward array with one column entry per jet for each event
         # and pads jet entrys with 0, if number of jets < max_jets
@@ -103,7 +137,8 @@ class Dataset:
         ak_array: raw array to be vectorized
         max_jets: maximum number of jets per event, default is 10
         """
-        list_of_columns = [c for c in ak_array[0]]
+        
+        list_of_columns = [c for c in ak_array[0].fields]
         padded_arrays = {}
         
         #creates a new array for each column
@@ -120,6 +155,41 @@ class Dataset:
             for ijet in range(max_jets):
                 new_col_name = col+"_"+str(ijet)
                 padded_arrays[new_col_name] = ak.fill_none(pad_arr[:,ijet], 0.0)
+                
+        data_dict = ak.zip(padded_arrays)
+        full_array = ak.Array(data_dict)
+        self.ak_array_unrolled = full_array
+        
+        print("Final array contains", len(full_array), "entries")
+        print("stored the final array also as class variable ak_array_unrolled")
+        return data_dict
+
+    def vectorize_and_pad_raw_array_cluster(self, ak_array, cluster_type, max_cl=10,  verbosity=0):
+        # function that creates a new awkward array with one column entry per cluster for each event
+        # and pads cluster entrys with 0, if number of clusters < max_cl
+        # then stores the array in a class variable self.ak_array_unrolled
+        """
+        ak_array: raw array to be vectorized
+        max_cl: maximum number of clusters per event, default is 10
+        """
+        
+        list_of_columns = [c for c in ak_array[0].fields]
+        padded_arrays = {}
+        
+        #creates a new array for each column
+        for col in list_of_columns:
+            the_column = ak_array[col]
+            
+            if not cluster_type in col:
+                padded_arrays[col] = the_column
+                continue
+                
+            pad_arr = ak.pad_none(the_column, max_cl, clip=True)
+            
+            #creates padded column for each jet of each "csc"/"dt" key
+            for icl in range(max_cl):
+                new_col_name = col+"_"+str(icl)
+                padded_arrays[new_col_name] = ak.fill_none(pad_arr[:,icl], 0.0)
                 
         data_dict = ak.zip(padded_arrays)
         full_array = ak.Array(data_dict)
@@ -216,7 +286,18 @@ class Dataset:
                 self.np_array_unstructured = np_array
             return np_array
                 
-            
+    def load_df(self, path): 
+        # load pandas df from h5 file and store it in class variable
+        store = pd.HDFStore(path)
+        #if store.keys() ==[]:
+        #    print("Warning, empty dataframe, skipping...")
+        #    continue
+        #else:
+        print('Opening file ', path)
+        df = store.select("df",start=0,stop=-1)
+        count_events = df.shape[0]#store.get_storer('df').shape
+        store.close()
+        return df     
         
          
         
