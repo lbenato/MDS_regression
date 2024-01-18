@@ -128,6 +128,39 @@ class Dataset:
         print("stored the final array also as class variable ak_array_unrolled")
 
         return full_array
+
+    def unroll_raw_array_hits(self, ak_array, max_events=-1, verbosity=0):
+        # function that creates a new awkward array with one entry per cluster
+        # then stores the array in a class variable self.ak_array_unrolled
+        print("Turning event array into hits array")
+        list_of_columns = [c for c in ak_array[0].fields]
+        list_of_entry_dicts = []
+        total_cl = 0
+        n_events_seen=0
+        for event in ak_array:
+            n_cl = len(event["cscClusteredRechitsIndex"])
+            total_cl += n_cl
+            for icl in range(n_cl):
+            # create temporary dictionary to hold cluster data
+                data_dict = {col: event[col] if not col.startswith("cscClusteredRechits") else event[col][icl]
+                         for col in list_of_columns}
+                if verbosity>1:
+                    print(data_dict)
+                list_of_entry_dicts.append(data_dict)
+            n_events_seen+=1
+            if(n_events_seen%1000==0):
+                print("Processing event n. ", n_events_seen)
+            if max_events>0 and n_events_seen>=max_events:
+                break
+                
+        full_array = ak.Array(list_of_entry_dicts)
+        self.ak_array_unrolled = full_array
+        
+        print("Processes a total of", total_cl, "rechits")
+        print("Final array contains", len(full_array), "entries")
+        print("stored the final array also as class variable ak_array_unrolled")
+
+        return full_array
     
     def vectorize_and_pad_raw_array_jets(self, ak_array, max_jets=10,  verbosity=0):
         # function that creates a new awkward array with one column entry per jet for each event
@@ -198,6 +231,98 @@ class Dataset:
         print("Final array contains", len(full_array), "entries")
         print("stored the final array also as class variable ak_array_unrolled")
         return data_dict
+
+    def vectorize_and_pad_raw_array_hits(self, ak_array, cluster_type, max_cl=1000,  verbosity=0):
+        # function that creates a new awkward array with one column entry per cluster for each event
+        # and pads cluster entrys with 0, if number of clusters < max_cl
+        # then stores the array in a class variable self.ak_array_unrolled
+        """
+        ak_array: raw array to be vectorized
+        max_cl: maximum number of clusters per event, default is 10
+        """
+        
+        list_of_columns = [c for c in ak_array[0].fields]
+        padded_arrays = {}
+        
+        #creates a new array for each column
+        for col in list_of_columns:
+            the_column = ak_array[col]
+            
+            if not cluster_type in col:
+                padded_arrays[col] = the_column
+                continue
+                
+            pad_arr = ak.pad_none(the_column, max_cl, clip=True)
+            
+            #creates padded column for each jet of each "csc"/"dt" key
+            for icl in range(max_cl):
+                new_col_name = col+"_"+str(icl)
+                padded_arrays[new_col_name] = ak.fill_none(pad_arr[:,icl], 0.0)
+                
+        data_dict = ak.zip(padded_arrays)
+        full_array = ak.Array(data_dict)
+        self.ak_array_unrolled = full_array
+        
+        print("Final array contains", len(full_array), "entries")
+        print("stored the final array also as class variable ak_array_unrolled")
+        return data_dict
+
+    def unroll_clusters_vectorize_and_pad_hits(self, ak_array, cluster_type, hits_type, default_values_rechits, max_hits=1000, max_events=-1, verbosity=0):
+        # function that creates a new awkward array with one entry per cluster
+        # then creates a new awkward array with one column entry per hits for each cluster
+        # and pads hits entries with the appropriate default values, if number of hits < max_hits
+        # then stores the array in a class variable self.ak_array_unrolled
+        list_of_columns = [c for c in ak_array[0].fields]
+        padded_arrays_hits = {}
+    
+        #here we need to separate cluster variables (unrolled) and rechits (vectorized/padded)
+        list_of_cl_columns = []
+        list_of_hits_columns = []
+        for col in list_of_columns:
+            if "cscClusteredRechits" in col:
+                list_of_hits_columns.append(col)
+            else:
+                list_of_cl_columns.append(col)
+                
+        list_of_entry_dicts = []
+        total_cl = 0
+        n_events_seen=0
+        for event in ak_array:
+            n_cl = len(event["cscRechitCluster_match_gLLP"])
+            total_cl += n_cl
+            hits_event = event[list_of_hits_columns]
+            cl_event = event[list_of_cl_columns]
+            for icl in range(n_cl):
+                # create temporary dictionary to hold cluster data
+                data_dict_cl = {col: cl_event[col] if not col.startswith(cluster_type) else cl_event[col][icl]
+                             for col in list_of_cl_columns}
+                if verbosity>1:
+                    print(data_dict_cl)
+                m_hits = event["cscClusteredRechitsIndex"]==icl
+                for col in list_of_hits_columns:
+                    filtered_hits = ak.Array(hits_event[col][m_hits])
+                    pad_arr = ak.pad_none(filtered_hits, max_hits, axis=0, clip=True)
+                    for ih in range(max_hits):
+                        new_col_name = col+"_"+str(ih)
+                        addendum = ak.fill_none([ pad_arr[ih] ], default_values_rechits[col])[0]
+                        data_dict_cl[new_col_name] = addendum
+            
+                list_of_entry_dicts.append(data_dict_cl)
+            
+            n_events_seen+=1
+            if(n_events_seen%1000==0):
+                print("Processing event n. ", n_events_seen)
+            if max_events>0 and n_events_seen>=max_events:
+                break
+    
+    
+        full_array = ak.Array(list_of_entry_dicts)
+        self.ak_array_unrolled = full_array
+        return full_array
+        
+        print("Final array contains", len(full_array), "entries")
+        print("stored the final array also as class variable ak_array_unrolled")
+        
     
     def convert_ak_to_numpy(self, ak_array=None):
         # convert the unrolled ak array to a structured numpy array
