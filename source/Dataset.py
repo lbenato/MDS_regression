@@ -310,7 +310,7 @@ class Dataset:
                 list_of_entry_dicts.append(data_dict_cl)
             
             n_events_seen+=1
-            if(n_events_seen%1000==0):
+            if(n_events_seen%100==0):
                 print("Processing event n. ", n_events_seen)
             if max_events>0 and n_events_seen>=max_events:
                 break
