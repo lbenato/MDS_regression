@@ -129,7 +129,13 @@ cd /nfs/dust/cms/user/<username>/anaconda3/envs/mds_regression #you should be he
 conda activate mds_regression
 pip install ipykernel --user
 python -m ipykernel install --user --name="mds_regression"
+
+#pytorch
+pip install torch
+pip install torch_geometric
+pip install torch_cluster
 ```
+
 
 ### Cloning this repository
 
