@@ -124,16 +124,26 @@ tensorflow
 
 pip install -r path/to/requirements.txt
 
+# pytorch
+
+# GPU install (CUDA 11.7)
+conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.7 -c pytorch -c nvidia
+# CPU Only
+conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 cpuonly -c pytorch
+
+# pytorch-geometric
+conda install pyg -c pyg
+
+# pytorch-cluster
+conda install pytorch-cluster -c pyg
+
 # install jupyterhub kernel
 cd /nfs/dust/cms/user/<username>/anaconda3/envs/mds_regression #you should be here already, better to be sure
 conda activate mds_regression
 pip install ipykernel --user
 python -m ipykernel install --user --name="mds_regression"
 
-#pytorch
-pip install torch
-pip install torch_geometric
-pip install torch_cluster
+
 ```
 
 
