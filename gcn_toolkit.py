@@ -20,10 +20,11 @@ class GCN(torch.nn.Module):
         self.conv1 = GCNConv(9, hidden_channels)
         self.conv2 = GCNConv(hidden_channels, hidden_channels)
         self.conv3 = GCNConv(hidden_channels, hidden_channels)
-        self.lin1 = Linear(hidden_channels + graph_inputs, int((hidden_channels + graph_inputs)/4 *3))
-        self.lin2 = Linear(int((hidden_channels + graph_inputs)/4 *3), int((hidden_channels + graph_inputs)/2))
-        self.lin3 = Linear(int((hidden_channels + graph_inputs)/2), int((hidden_channels + graph_inputs)/4))
-        self.lin4 = Linear(int((hidden_channels + graph_inputs)/4), 1)
+        self.lin1 = Linear(hidden_channels + graph_inputs, 50)
+        self.lin2 = Linear(50, 30)
+        self.lin3 = Linear(30, 20)
+        self.lin4 = Linear(20, 5)
+        self.lin5 = Linear(5, 1)
 
         self.graph_inputs = graph_inputs
 
@@ -63,6 +64,8 @@ class GCN(torch.nn.Module):
         x = self.lin3(x)
         x = x.relu()
         x = self.lin4(x)
+        x = x.relu()
+        x = self.lin5(x)
         x = x.relu()
         
         return x
