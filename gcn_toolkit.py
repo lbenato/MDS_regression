@@ -70,6 +70,7 @@ class GCN(torch.nn.Module):
         
         return x
 
+
 class graph_maker:
     def __init__(self, index = 1):
         self.index = index
@@ -98,9 +99,116 @@ class gcn_model:
         self.model.train()
 
         for data in train_loader:  # Iterate in batches over the training dataset.
+            self.optimizer.zero_grad()  # Clear gradients.
             out = self.model(data.x, data.edge_index, data.batch, data.u)  # Perform a single forward pass.
             loss = self.criterion(out, data.y)  # Compute the loss.
             loss.backward()  # Derive gradients.
+            self.optimizer.step()  # Update parameters based on gradients.
+            
+
+    def test(self, loader):
+        self.model.eval()
+        mloss = 0
+        runs = 0
+        for data in loader:  # Iterate in batches over the training/test dataset
+            out = self.model(data.x, data.edge_index, data.batch, data.u)
+            mloss += self.criterion(out, data.y)
+            runs += 1
+        mloss /= runs
+        return mloss
+
+    def predict_plot(self, predictions, labels, title = None, axlabels = ('clusters', 'generated particle energy')):
+        fig, ax = plt.subplots(figsize = (6, 4))
+
+        histdata, bins, dummy = ax.hist(labels, bins = 50, histtype="step", color = 'b', label = 'truth')
+        ax.hist(predictions, bins = bins, histtype="step", color = 'r', label = 'predictions')
+        ax.set_yscale('log')
+        ax.set_ylabel(axlabels[0])
+        ax.set_xlabel(axlabels[1])
+        ax.legend()
+        if title:
+            ax.set_title(title)
+
+    def predict(self, loader):
+        self.model.eval()
+        labels = []
+        pred = []
+        for data in loader:
+            pred.append(self.model(data.x, data.edge_index, data.batch, data.u).item())
+            labels.append(data.y.item()) 
+            #rint(model(data.x, data.edge_index, data.batch).item())
+            #rint(data.y.item())
+        self.predict_plot(pred, labels)
+        
+    def plot_loss(self, train, val):
+        fig, ax = plt.subplots(figsize = (6, 4))
+        epoch = np.arange(1, len(train) + 1)
+        plt.plot(epoch, train, label = 'Training', color = 'blue')
+        plt.plot(epoch, val, label = 'Validation',linestyle = '--', color = 'blue')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.yscale('log')
+        plt.legend()
+        plt.show()
+
+        
+class FCN(torch.nn.Module):
+    def __init__(self, inputs = 28, layers = [50, 30, 20, 5, 1]):
+        super(FCN, self).__init__()
+        
+        self.fc_layers = torch.nn.ModuleList()  # ModuleList to hold dynamically created layers
+        
+        # first layer
+        self.fc_layers.append(torch.nn.Linear(inputs, layers[0]))
+        self.fc_layers.append(torch.nn.ReLU())
+        
+        # other layers
+        for i in range(len(layers) - 1):
+            self.fc_layers.append(torch.nn.Linear(layers[i], layers[i + 1]))
+            self.fc_layers.append(torch.nn.ReLU())
+            
+        self.inputs = inputs
+        
+    def forward(self, x, batch):
+        # reshaping x
+        x = torch.reshape(x, (batch[-1].item() + 1, self.inputs))
+        #print(x.size())
+        
+        for layer in self.fc_layers:
+            x = layer(x)
+        return x
+    
+    
+class fcn_model:
+    def __init__(self, index = 1):
+        self.index = index
+        self.model = None
+        self.optimizer = None
+        self.criterion = None
+        
+    def test1(self, ext):
+        out = self.index + ext
+        print(out)
+        return out
+    
+    def make_model(self, inputs = 28, learn = 0.01):
+        self.model = FCN(inputs = inputs)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr = learn)
+        self.criterion = torch.nn.MSELoss()
+        print(self.model)
+        
+    
+    def train(self, train_loader):
+        self.model.train()
+        self.dummy = True
+        for data in train_loader:  # Iterate in batches over the training dataset.
+            out = torch.flatten(self.model(data.u, data.batch))  # Perform a single forward pass.
+            loss = self.criterion(out, data.y)  # Compute the loss.
+            loss.backward()  # Derive gradients.
+            if self.dummy:
+                print(data.u)
+                print(out, data.y)
+                self.dummy = False
             self.optimizer.step()  # Update parameters based on gradients.
             self.optimizer.zero_grad()  # Clear gradients.
             
@@ -109,7 +217,7 @@ class gcn_model:
         mloss = 0
         runs = 0
         for data in loader:  # Iterate in batches over the training/test dataset
-            out = self.model(data.x, data.edge_index, data.batch, data.u)
+            out = self.model(data.u, data.batch)
             mloss += self.criterion(out, data.y)
             runs += 1
         mloss /= runs
@@ -132,7 +240,7 @@ class gcn_model:
         labels = []
         pred = []
         for data in loader:
-            pred.append(self.model(data.x, data.edge_index, data.batch, data.u).item())
+            pred.append(self.model(data.x, data.batch).item())
             labels.append(data.y.item()) 
             #rint(model(data.x, data.edge_index, data.batch).item())
             #rint(data.y.item())
